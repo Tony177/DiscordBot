@@ -1,10 +1,12 @@
 // Required module
 const Discord = require('discord.js');
-
+const fs = require('fs');
+const { prefix, token, music } = require('./config.json');
+const list=fs.readdirSync(music);
 
 // Create a new Discord client and use the config
 const client = new Discord.Client();
-const { prefix, token } = require('./config.json');
+
 
 
 // Login to Discord with your app's token
@@ -23,40 +25,47 @@ client.on('message', message => {
 
 
 	client.on('message', async message => {
-		// Voice only works in guilds and with the right sintax, exting from the function otherwise
+		// Those commands only works in guilds and with the right sintax, exting from the function otherwise
 		if (!message.guild || !message.content.includes(prefix)) return;
 
-		//Cutting the prefix and the keyword "play" from the initial message
-		const argument = message.content.slice(prefix.length+4).trim().split(/ +/);
-		const command = argument.shift().toLowerCase();
+		//List every mp3 avaible
+		if(message.content == (prefix + 'list'))
+		{
+			for (let index = 0; index < list.length; index++) {
+				message.channel.send((index+1) + '. ' + list[index].slice(0,-4));
+			}
+		}
 
-		if(message.content === '${prefix}stop')
-		(await connection).disconnect();
+		//Stop last song
+		if(message.content == (prefix + 'stop'))
+			(await connection).disconnect();
+		
+		 // Only try to join the sender's voice channel if they are in one themselves
+		 if (message.member.voice.channel && message.content.includes(prefix + 'play')) {
+		try{
+				
+			//Cutting the prefix and the keyword "play" from the initial message
+			const argoment = message.content.slice(prefix.length+4).trim().split(/ +/);
+			const command = argoment.shift().toLowerCase();
 
-		  // Only try to join the sender's voice channel if they are in one themselves
-		  if (message.member.voice.channel) {
-			try{
-				//Joining voice channel and waiting for the command 
-				const connection=message.member.voice.channel.join();
-				const dispatcher = (await connection).play(command + '.mp3');
+			//Joining voice channel and waiting for the command 
+			const connection=message.member.voice.channel.join();
+			const dispatcher = (await connection).play(`${music + command}.mp3`);
 
-						//Console feedback on start and stop
-				dispatcher.on('start', () => {
-				console.log(command + ' is now playing!');
+			//Console feedback on start and stop
+			dispatcher.on('start', () => {
+			console.log(command + ' is now playing!');
+			});
+			dispatcher.on('finish', () => {
+			console.log(command +' has finished playing!');
+			});
 
-				});
+			// Error Handling
+			dispatcher.on('error', console.error);
 
-				dispatcher.on('finish', () => {
-				console.log(command +' has finished playing!');
-
-				});
-				// Error Handling
-				dispatcher.on('error', console.error);
-
-		  	} catch(error){
-				  //Catch async function
-				console.error(error);
-			  }} 
-		  else 
-			message.reply('You need to join a voice channel first!');	
+		} catch(error){
+				//Catch async function
+			console.error(error);
+			}} 
 	});
+
