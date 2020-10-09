@@ -1,7 +1,6 @@
 // Required module
 const Discord = require('discord.js');
-const fs = require('fs');
-const ffmpeg = require("ffmpeg");
+
 
 // Create a new Discord client and use the config
 const client = new Discord.Client();
@@ -25,13 +24,11 @@ client.on('message', message => {
 
 	client.on('message', async message => {
 		// Voice only works in guilds and with the right sintax, exting from the function otherwise
-		if (!message.guild) return;
-		if(message.content.includes(prefix))
-		{
+		if (!message.guild || !message.content.includes(prefix)) return;
+
 		//Cutting the prefix and the keyword "play" from the initial message
 		const argoment = message.content.slice(prefix.length+4).trim().split(/ +/);
 		const command = argoment.shift().toLowerCase();
-		console.log(command+'\n');
 
 		if(message.content === '${prefix}stop')
 		(await connection).disconnect();
@@ -60,8 +57,6 @@ client.on('message', message => {
 				  //Catch async function
 				console.error(error);
 			  }} 
-		  else {
-			message.reply('You need to join a voice channel first!');
-				}
-		}	
+		  else 
+			message.reply('You need to join a voice channel first!');	
 	});
