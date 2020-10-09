@@ -27,8 +27,8 @@ client.on('message', message => {
 		if (!message.guild || !message.content.includes(prefix)) return;
 
 		//Cutting the prefix and the keyword "play" from the initial message
-		const argoment = message.content.slice(prefix.length+4).trim().split(/ +/);
-		const command = argoment.shift().toLowerCase();
+		const argument = message.content.slice(prefix.length+4).trim().split(/ +/);
+		const command = argument.shift().toLowerCase();
 
 		if(message.content === '${prefix}stop')
 		(await connection).disconnect();
