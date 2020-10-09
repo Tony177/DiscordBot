@@ -25,13 +25,17 @@ client.on('message', message => {
 
 	client.on('message', async message => {
 		// Voice only works in guilds and with the right sintax, exting from the function otherwise
-		if (!message.guild || !message.content.includes(prefix + 'play')) return;
-
+		if (!message.guild) return;
+		if(message.content.includes(prefix))
+		{
 		//Cutting the prefix and the keyword "play" from the initial message
 		const argoment = message.content.slice(prefix.length+4).trim().split(/ +/);
 		const command = argoment.shift().toLowerCase();
 		console.log(command+'\n');
-		 {
+
+		if(message.content === '${prefix}stop')
+		(await connection).disconnect();
+
 		  // Only try to join the sender's voice channel if they are in one themselves
 		  if (message.member.voice.channel) {
 			try{
@@ -44,9 +48,7 @@ client.on('message', message => {
 				console.log(command + ' is now playing!');
 
 				});
-				if(message.content === '${prefix}stop')
-					(await connection).disconnect();
-					
+
 				dispatcher.on('finish', () => {
 				console.log(command +' has finished playing!');
 
@@ -61,5 +63,5 @@ client.on('message', message => {
 		  else {
 			message.reply('You need to join a voice channel first!');
 				}
-		}
+		}	
 	});
