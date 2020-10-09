@@ -31,9 +31,13 @@ client.on('message', message => {
 		//List every mp3 avaible
 		if(message.content == (prefix + 'list'))
 		{
+			let reply = "";
+
 			for (let index = 0; index < list.length; index++) {
-				message.channel.send((index+1) + '. ' + list[index].slice(0,-4));
+				reply += (index+1) + '. ' + list[index].slice(0,-4) + '\n';
 			}
+
+			message.channel.send(reply);
 		}
 
 		//Stop last song
