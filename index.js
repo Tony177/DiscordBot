@@ -84,20 +84,20 @@ client.on('message', message => {
 			{
 				try{
 				//Cutting the prefix, the keyword "yt" and the space from the initial message
-				const command = message.content.slice(prefix.length+3).trim();
+				const url = message.content.slice(prefix.length+3).trim();
 
 				message.member.voice.channel.join().then(connection => {
 				//Joining voice channel and setup the dispatcher as Youtube Audio
-				const stream = ytdl(command, { filter: 'audioonly' });
+				const stream = ytdl(url, { filter: 'audioonly',quality: 'highestaudio', dlChunkSize: 0 });
 				const dispatcher = connection.play(stream);
 				
 
 				//Console feedback on start and stop
 				dispatcher.on('start', () => {
-				console.log(command + ' is now playing!');
+				console.log(url + ' is now playing!');
 				});
 				dispatcher.on('finish', () => {
-				console.log(command +' has finished playing!');
+				console.log(url +' has finished playing!');
 				});
 
 				// Error Handling
