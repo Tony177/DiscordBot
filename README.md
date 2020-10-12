@@ -2,7 +2,7 @@
 
 ## Introduction
 
-Simple discord bot based on discord.js [discord.js](https://github.com/discordjs/discord.js)
+Simple discord bot based on [discord.js](https://github.com/discordjs/discord.js)
 capable of reproduce audio and track message.
 Change the TOKEN in config.json before running it, you can find it on your
 Discord Bot Info page.  
