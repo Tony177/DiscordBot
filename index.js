@@ -1,10 +1,24 @@
 // Required module
-const Discord = require('discord.js');
-const fs = require('fs');
-const ytdl = require('ytdl-core');
-const { prefix, token, music } = require('./config.json');
+const Discord = require("discord.js");
+const fs = require("fs");
+const ytdl = require("ytdl-core");
+const { prefix, token, music } = require("./config.json");
 
 
+function feedback(dis, mus) {
+	//Console feedback on start and stop
+	dis.on("start", () => {
+		console.log(`${mus} is now playing!`);
+	});
+	dis.on("finish", () => {
+		console.log(`${mus} has finished playing!`);
+	});
+
+	// Error Handling
+	dis.on("error", console.error);
+	process.on("unhandledRejection", (error) => console.error("Uncaught Promise Rejection", error)
+	);
+}
 
 // Create a new Discord client and use the config
 const client = new Discord.Client();
@@ -14,8 +28,8 @@ client.login(token);
 
 // When the client is ready, print on console
 // This event will only trigger one time after logging in
-client.once('ready', () => {
-	console.log('-- Bot Started --');
+client.once("ready", () => {
+	console.log("-- Bot Started --");
 });
 
 // Ready to log any message and author, ON instead of ONCE to do it always
@@ -24,91 +38,58 @@ client.on('message', message => {
 		console.log(message.author.username + ': ' + message.content);
 });
 
-
-client.on('message', async message => {
+client.on("message", async (message) => {
 	// Those commands only works in guilds and with the right sintax, exting from the function otherwise
-	if (!message.guild || !message.content.includes(prefix)) return;
+	if (!message.guild || !message.content.includes(prefix)) return 0;
 
-	//List every mp3 avaible in the directory
-	if (message.content == (prefix + 'list')) {
+	if (message.content == prefix + "list") {
 		const list = fs.readdirSync(music);
 		let reply = "";
 		for (let index = 0; index < list.length; index++) {
-			reply += (index + 1) + '. ' + list[index].slice(0, -4) + '\n';
+			reply += index + 1 + ". " + list[index].slice(0, -4) + "\n";
 		}
 		message.channel.send(reply);
 	}
 
-	//Stop last song
-	if (message.content == (prefix + 'stop')) {
-		message.guild.me.voice.channel.leave();
-
-	}
-
-	// Only try to join the sender's voice channel if they are in one themselves
-	if (message.member.voice.channel) {
-
-
-		if (message.content.includes(prefix + 'play ')) {
-			try {
+	const command = message.content.slice(prefix.length).trim().split(/(\s+)/);
+	try {
+		switch (command[0]) {
+			case "play":
 				//Cutting the prefix and the keyword "play" from the initial message
-				const argoment = message.content.slice(prefix.length + 5).trim().split(/ +/);
-				const command = argoment.shift().toLowerCase();
+				const argoment = command[2].toLowerCase();
 
 				//Joining voice channel and setup the dispatcher as MP3 Audio
-				message.member.voice.channel.join().then(connection => {
-					const dispatcher = connection.play(`${music + command}.mp3`);
-
-					//Console feedback on start and stop
-					dispatcher.on('start', () => {
-						console.log(command + ' is now playing!');
-					});
-					dispatcher.on('finish', () => {
-						console.log(command + ' has finished playing!');
-					});
-
-					// Error Handling
-					dispatcher.on('error', console.error);
-					process.on('unhandledRejection', error => console.error('Uncaught Promise Rejection', error));
+				message.member.voice.channel.join().then((connection) => {
+					const dispatcher = connection.play(`${music + argoment}.mp3`);
+					feedback(dispatcher, argoment);
 				});
+				break;
 
-			} catch (error) {
-				//Catch async function error
-				console.error(error);
-			}
-		} //END PLAY MP3 IF
-
-
-
-		if (message.content.includes(prefix + 'yt ')) {
-			try {
-				//Cutting the prefix, the keyword "yt" and the space from the initial message
-				const url = message.content.slice(prefix.length + 3).trim();
-
-				message.member.voice.channel.join().then(connection => {
+			case "yt":
+				message.member.voice.channel.join().then((connection) => {
 					//Joining voice channel and setup the dispatcher as Youtube Audio
-					const stream = ytdl(url, { filter: 'audioonly', quality: 'highestaudio', highWaterMark: 1 << 15, dlChunkSize: 0 });
+					const stream = ytdl(command[2], {
+						filter: "audioonly",
+						quality: "highestaudio",
+						highWaterMark: 1 << 15,
+						dlChunkSize: 0,
+					});
 					const dispatcher = connection.play(stream);
-
-
-					//Console feedback on start and stop
-					dispatcher.on('start', () => {
-						console.log(url + ' is now playing!');
-					});
-					dispatcher.on('finish', () => {
-						console.log(url + ' has finished playing!');
-					});
-
-					// Error Handling
-					dispatcher.on('error', console.error);
-					process.on('unhandledRejection', error => console.error('Uncaught Promise Rejection', error));
+					feedback(dispatcher, command[2]);
 				});
-			} catch (error) {
-				//Catch async function error
-				console.error(error);
-			}
+				break;
 
-		} //END YOUTUBE IF
+			case "stop":
+				message.guild.me.voice.channel.leave();
+				break;
 
-	}// END VOICE CHANNEL IF
-}); //END CLIENT IF
+			default:
+				message.channel.send(`${command[0]} non corrisponde a nessun comando!`);
+				break;
+		}
+	} catch (error) {
+		//Catch async function error
+		console.error(error);
+	}
+
+});

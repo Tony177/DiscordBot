@@ -27,8 +27,8 @@
     "discord.js": "^12.4.1",
     "ffmpeg": "0.0.4",
     "ffmpeg-static": "^4.2.7",
-    "miniget": "^2.0.2",
+    "miniget": "^2.1.0",
     "node-pre-gyp": "^0.16.0",
-    "ytdl-core": "^4.0.2"
+    "ytdl-core": "^4.0.3"
   }
 }
