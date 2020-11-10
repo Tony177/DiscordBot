@@ -5,21 +5,6 @@ const ytdl = require("ytdl-core");
 const { prefix, token, music } = require("./config.json");
 
 
-function feedback(dis, mus) {
-	//Console feedback on start and stop
-	dis.on("start", () => {
-		console.log(`${mus} is now playing!`);
-	});
-	dis.on("finish", () => {
-		console.log(`${mus} has finished playing!`);
-	});
-
-	// Error Handling
-	dis.on("error", console.error);
-	process.on("unhandledRejection", (error) => console.error("Uncaught Promise Rejection", error)
-	);
-}
-
 // Create a new Discord client and use the config
 const client = new Discord.Client();
 
@@ -40,7 +25,7 @@ client.on('message', message => {
 
 client.on("message", async (message) => {
 	// Those commands only works in guilds and with the right sintax, exting from the function otherwise
-	if (!message.guild || !message.content.includes(prefix)) return 0;
+	if (!message.guild || !message.content.startsWith(prefix)) return 0;
 
 	if (message.content == prefix + "list") {
 		const list = fs.readdirSync(music);
@@ -93,3 +78,18 @@ client.on("message", async (message) => {
 	}
 
 });
+
+function feedback(dis, mus) {
+	//Console feedback on start and stop
+	dis.on("start", () => {
+		console.log(`${mus} is now playing!`);
+	});
+	dis.on("finish", () => {
+		console.log(`${mus} has finished playing!`);
+	});
+
+	// Error Handling
+	dis.on("error", console.error);
+	process.on("unhandledRejection", (error) => console.error("Uncaught Promise Rejection", error)
+	);
+}
