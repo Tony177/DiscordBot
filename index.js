@@ -23,18 +23,18 @@ client.on('message', message => {
 		console.log(message.author.username + ': ' + message.content);
 });
 
+
+//Set self deafen state every time the bot log into a voice channel
+client.on("voiceStateUpdate", (oldVoiceState, newVoiceState) => {
+	if (!newVoiceState.channel) { return false }; // The bot disconnected.
+	if (newVoiceState.id == client.user.id) { // Checking if it is the bot.
+		newVoiceState.setSelfDeaf(true); // Setting self defean to true.
+	};
+});
+
 client.on("message", async (message) => {
 	// Those commands only works in guilds and with the right sintax, exting from the function otherwise
 	if (!message.guild || !message.content.startsWith(prefix)) return 0;
-
-	if (message.content == prefix + "list") {
-		const list = fs.readdirSync(music);
-		let reply = "";
-		for (let index = 0; index < list.length; index++) {
-			reply += index + 1 + ". " + list[index].slice(0, -4) + "\n";
-		}
-		message.channel.send(reply);
-	}
 
 	const command = message.content.slice(prefix.length).trim().split(/(\s+)/);
 	try {
@@ -62,6 +62,12 @@ client.on("message", async (message) => {
 					const dispatcher = connection.play(stream);
 					feedback(dispatcher, command[2]);
 				});
+				break;
+
+			case "list":
+				const reply = list();
+				message.channel.send(reply);
+
 				break;
 
 			case "stop":
@@ -92,4 +98,13 @@ function feedback(dis, mus) {
 	dis.on("error", console.error);
 	process.on("unhandledRejection", (error) => console.error("Uncaught Promise Rejection", error)
 	);
+}
+
+function list() {
+	const list = fs.readdirSync(music);
+	let reply = "";
+	for (let index = 0; index < list.length; index++) {
+		reply += index + 1 + ". " + list[index].slice(0, -4) + "\n";
+	}
+	return reply;
 }
