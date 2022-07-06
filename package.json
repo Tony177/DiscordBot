@@ -23,7 +23,7 @@
   },
   "homepage": "https://github.com/Tony177/DiscordBot#readme",
   "dependencies": {
-    "@discordjs/opus": "^0.3.3",
+    "@discordjs/opus": "^0.8.0",
     "discord.js": "^12.4.1",
     "ffmpeg": "0.0.4",
     "ffmpeg-static": "^4.2.7",
